@@ -8,4 +8,4 @@ import Accumulators (accumulatePolynomialPowers)
 import Filters (filterPolynomial)
 
 normalizePolynomial :: Polynomial -> Polynomial
-normalizePolynomial = sortPolynomialPowers . accumulatePolynomialPowers . filterPolynomial
+normalizePolynomial = accumulatePolynomialPowers .  sortPolynomialPowers . filterPolynomial
