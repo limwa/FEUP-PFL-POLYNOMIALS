@@ -1,5 +1,5 @@
 module Accumulators (
-
+    accumulatePolynomialPowers
 ) where
 
 import Types
