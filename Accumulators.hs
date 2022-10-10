@@ -12,6 +12,7 @@ accumulateTermPowers :: Term -> Term
 accumulateTermPowers (Term powers coef) = Term (accumulatePowers powers) coef 
 
 accumulatePowers :: [Power] -> [Power]
+accumulatePowers [] = []
 accumulatePowers (Power var exp:xs) | newExp == 0 = accumulatePowers otherVarPowers
                                     | otherwise = Power var newExp : accumulatePowers otherVarPowers
     where (sameVarPowers, otherVarPowers) = partition (\(Power var' exp') -> var == var') xs
