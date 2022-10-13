@@ -3,9 +3,9 @@ module Operations (
 ) where
 
 import Types
-import Sorters (sortPolynomialPowers)
-import Accumulators (accumulatePolynomialPowers)
-import Filters (filterPolynomial)
+import Sorters
+import Accumulators
+import Filters
 
 normalizePolynomial :: Polynomial -> Polynomial
-normalizePolynomial = accumulatePolynomialPowers .  sortPolynomialPowers . filterPolynomial
+normalizePolynomial =  sortTerms . accumulatePolynomialPowers . sortPolynomialPowers . filterPolynomial

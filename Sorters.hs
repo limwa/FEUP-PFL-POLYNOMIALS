@@ -1,5 +1,6 @@
 module Sorters (
-    sortPolynomialPowers
+    sortPolynomialPowers,
+    sortTerms
 ) where
 
 import Types
@@ -10,3 +11,6 @@ sortPolynomialPowers (Polynomial terms) = Polynomial (map sortTermPowers terms)
 
 sortTermPowers :: Term -> Term
 sortTermPowers (Term powers coef) = Term (sort powers) coef
+
+sortTerms :: Polynomial -> Polynomial
+sortTerms (Polynomial terms) = Polynomial (sort terms)
