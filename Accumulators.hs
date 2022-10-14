@@ -1,5 +1,6 @@
 module Accumulators (
-    accumulatePolynomialPowers
+    accumulatePolynomialPowers,
+    accumulatePolynomialTerms
 ) where
 
 import Types
@@ -14,21 +15,18 @@ accumulateTermPowers (Term powers coef) = Term (accumulatePowers powers) coef
 accumulatePowers :: [Power] -> [Power]
 accumulatePowers [] = []
 accumulatePowers ((Power var exp):xs) | newExp == 0 = accumulatePowers otherVarPowers
-                                    | otherwise = Power var newExp : accumulatePowers otherVarPowers
+                                      | otherwise = Power var newExp : accumulatePowers otherVarPowers
     where (sameVarPowers, otherVarPowers) = partition (\(Power var' exp') -> var == var') xs
           sameVarExponents = map (\(Power _ exp') -> exp') sameVarPowers
           newExp = exp + sum sameVarExponents
 
+accumulatePolynomialTerms :: Polynomial -> Polynomial
+accumulatePolynomialTerms (Polynomial terms) = Polynomial (accumulatePolynomialCoefs terms)
+
 accumulatePolynomialCoefs :: [Term] -> [Term]
 accumulatePolynomialCoefs [] = []
-accumulatePolynomialCoefs ((Term powers coef):ts) = ts
-    where (samePowers, otherPowers) = partition (\(Term powers' coef) -> powers == powers') ts
-          addCoefs = Term(power sum coef) samePowers
--- accumulatePolynomialCoefs (Polynomial terms) | 
-
-fgdo :: Polynomial -> [Integer]
-fgdo (Polynomial [x]) = [9]
-fgdo (Polynomial (n:(Term powers coef):ns)) = [coef]
--- fgdo nums = nums
-
-
+accumulatePolynomialCoefs ((Term powers coef):ts) | newCoef == 0 = accumulatePolynomialCoefs otherPowers
+                                                  | otherwise = Term powers newCoef : accumulatePolynomialCoefs otherPowers
+    where (samePowers, otherPowers) = partition (\(Term powers' _) -> powers == powers') ts
+          sameCoef = map (\(Term _ coef') -> coef') samePowers
+          newCoef = coef + sum sameCoef
