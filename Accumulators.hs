@@ -30,3 +30,5 @@ accumulatePolynomialCoefs ((Term powers coef):ts) | newCoef == 0 = accumulatePol
     where (samePowers, otherPowers) = partition (\(Term powers' _) -> powers == powers') ts
           sameCoef = map (\(Term _ coef') -> coef') samePowers
           newCoef = coef + sum sameCoef
+
+-- [2x⁵ + 5x⁷ + 8] * [3y²x³ + 7x⁴ + 1]

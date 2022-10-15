@@ -1,7 +1,9 @@
 module Types (
     Polynomial(..),
     Term(..),
-    Power(..)
+    Power(..),
+    Variable(..),
+    Number(..)
 ) where
 
 import Data.List (intercalate)
