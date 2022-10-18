@@ -9,7 +9,7 @@ module Types (
 import Data.List (intercalate)
 
 type Variable = Char
-type Number = Integer
+type Number = Int
 
 data Power = Power Variable Number deriving (Eq, Ord) -- x 2
 data Term = Term [Power] Number deriving (Eq, Ord) -- [x 2, y 5] 6
