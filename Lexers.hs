@@ -1,11 +1,13 @@
 module Lexers (
-    Token(..)
+    Token(..),
+    lexer
 ) where
 
 import Types (Variable, Number)
 import Data.Char
 
 data Token = PlusToken
+    | MinusToken
     | TimesToken
     | PowerToken
     | OpenParenthesisToken
@@ -27,12 +29,10 @@ lexer str
 lexer (c:cs)
     | isSpace c = lexer cs
     | c == '+' = PlusToken : lexer cs
+    | c == '-' = MinusToken : lexer cs
     | c == '*' = TimesToken : lexer cs
     | c == '^' = PowerToken : lexer cs
     | c == '(' = OpenParenthesisToken : lexer cs
     | c == ')' = CloseParenthesisToken : lexer cs
     | isAlpha c = VariableToken c : lexer cs
     | otherwise = error "unsupported character"
-
-
-main = print (lexer "7 * x * x^3 + y ^ 2 + 394 * x^(100 + 200)")

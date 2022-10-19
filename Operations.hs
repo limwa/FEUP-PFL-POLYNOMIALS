@@ -8,6 +8,8 @@ import Types
 import Sorters
 import Accumulators
 import Filters
+import Parsers
+import Lexers
 import Data.List
 
 normalizePolynomial :: Polynomial -> Polynomial
@@ -40,3 +42,14 @@ deriveTerm' dvar (Term powers coef) = Term (newSameDvarPowers ++ otherDvarPowers
           newSameDvarPowers = [Power dvar (exp - 1) | (Power _ exp) <- sameDvarPowers ]
           newCoef | null sameDvarPowers = 0
                   | otherwise = coef * sum [exp | (Power _ exp) <- sameDvarPowers]
+
+polynomialFromExpr :: Expr -> Polynomial
+polynomialFromExpr (PlusExpr expr1 expr2) = sumPolynomial [polynomialFromExpr expr1, polynomialFromExpr expr2]
+polynomialFromExpr (TimesExpr expr1 expr2) = multiplyPolynomials (polynomialFromExpr expr1) (polynomialFromExpr expr2)
+polynomialFromExpr (PowerExpr var exp) = Polynomial [ Term [Power var exp] 1 ]
+polynomialFromExpr (VariableExpr var) = Polynomial [ Term [ Power var 1] 1 ]
+polynomialFromExpr (LiteralExpr num) = Polynomial [ Term [] num ]
+
+parse :: String -> Polynomial
+parse input = normalizePolynomial (polynomialFromExpr expr)
+    where expr = parseTokens (lexer input)
