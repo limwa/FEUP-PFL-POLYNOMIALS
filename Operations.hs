@@ -15,10 +15,8 @@ import Data.List
 normalizePolynomial :: Polynomial -> Polynomial
 normalizePolynomial = accumulatePolynomialTerms . sortTerms . accumulatePolynomialPowers . sortPolynomialPowers . filterPolynomial
 
-sumPolynomial :: [Polynomial] -> Polynomial
-sumPolynomial [] = Polynomial []
-sumPolynomial (Polynomial terms:ps) = normalizePolynomial (Polynomial (terms ++ newTerms))
-    where (Polynomial newTerms) = sumPolynomial ps
+sumPolynomials :: Polynomial -> Polynomial -> Polynomial
+sumPolynomials (Polynomial terms1) (Polynomial terms2) = normalizePolynomial (Polynomial (terms1 ++ terms2))
 
 multiplyPolynomials :: Polynomial -> Polynomial -> Polynomial
 multiplyPolynomials (Polynomial terms) (Polynomial terms') = normalizePolynomial (Polynomial [multiplyTerms t t' | t <- terms, t' <- terms'])
@@ -44,11 +42,15 @@ deriveTerm' dvar (Term powers coef) = Term (newSameDvarPowers ++ otherDvarPowers
                   | otherwise = coef * sum [exp | (Power _ exp) <- sameDvarPowers]
 
 polynomialFromExpr :: Expr -> Polynomial
-polynomialFromExpr (PlusExpr expr1 expr2) = sumPolynomial [polynomialFromExpr expr1, polynomialFromExpr expr2]
+polynomialFromExpr (PlusExpr expr1 expr2) = sumPolynomials (polynomialFromExpr expr1) (polynomialFromExpr expr2)
+polynomialFromExpr (NegExpr expr) = Polynomial (mapTerms terms)
+    where (Polynomial terms) = polynomialFromExpr expr
+          mapTerms = map (\(Term powers coef) -> Term powers (-coef))
 polynomialFromExpr (TimesExpr expr1 expr2) = multiplyPolynomials (polynomialFromExpr expr1) (polynomialFromExpr expr2)
-polynomialFromExpr (PowerExpr var exp) = Polynomial [ Term [Power var exp] 1 ]
-polynomialFromExpr (VariableExpr var) = Polynomial [ Term [ Power var 1] 1 ]
+polynomialFromExpr (PowerExpr expr exp) = foldr multiplyPolynomials (Polynomial [ Term [] 1 ]) (replicate exp (polynomialFromExpr expr))
+polynomialFromExpr (VariableExpr var) = Polynomial [ Term [ Power var 1 ] 1 ]
 polynomialFromExpr (LiteralExpr num) = Polynomial [ Term [] num ]
+polynomialFromExpr (ParenthesisedExpr expr) = polynomialFromExpr expr
 
 parse :: String -> Polynomial
 parse input = normalizePolynomial (polynomialFromExpr expr)

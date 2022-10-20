@@ -7,44 +7,59 @@ import Types
 import Lexers
 
 data Expr = PlusExpr Expr Expr
+    | NegExpr Expr
     | TimesExpr Expr Expr
-    | PowerExpr Variable Number
+    | PowerExpr Expr Number
     | VariableExpr Variable
     | LiteralExpr Number
+    | ParenthesisedExpr Expr
     deriving (Show)
 
-parseLiteralOrVariableOrPower :: [Token] -> Maybe (Expr, [Token])
-parseLiteralOrVariableOrPower (VariableToken v : PowerToken : LiteralToken n : tks) = Just (PowerExpr v n, tks)
-parseLiteralOrVariableOrPower (LiteralToken n1 : PowerToken : LiteralToken n2 : tks) = Just (LiteralExpr (n1 ^ n2), tks)
-parseLiteralOrVariableOrPower (LiteralToken n : tks) = Just (LiteralExpr n, tks)
-parseLiteralOrVariableOrPower (MinusToken : LiteralToken n : tks) = Just (LiteralExpr (-n), tks)
-parseLiteralOrVariableOrPower (VariableToken v : tks) = Just (VariableExpr v, tks)
-parseLiteralOrVariableOrPower (OpenParenthesisToken : restTokens1) =
-    case parseSumOrProductOrLiteralOrVariableOrPower restTokens1 of
-        Just (expr, CloseParenthesisToken : restTokens2) -> Just (expr, restTokens2)
-        _                                                -> Nothing
-parseLiteralOrVariableOrPower _ = Nothing
+parseLiteralOrVariable :: [Token] -> Maybe (Expr, [Token])
+parseLiteralOrVariable (LiteralToken n : tks) = Just (LiteralExpr n, tks)
+parseLiteralOrVariable (VariableToken v : tks) = Just (VariableExpr v, tks)
 
-parseProductOrLiteralOrVariableOrPower :: [Token] -> Maybe (Expr, [Token])
-parseProductOrLiteralOrVariableOrPower tokens =
-    case parseLiteralOrVariableOrPower tokens of
-        Just (expr1, TimesToken : restTokens1) ->
-            case parseProductOrLiteralOrVariableOrPower restTokens1 of
-                Just (expr2, restTokens2) -> Just (TimesExpr expr1 expr2, restTokens2)
-                Nothing                   -> Nothing
+parseLiteralOrVariable (MinusToken : tks) = parseSumOrProductOrPowerLiteralOrVariable (LiteralToken 0 : MinusToken : tks)
+
+parseLiteralOrVariable (OpenParenthesisToken : restTokens1) =
+    case parseSumOrProductOrPowerLiteralOrVariable restTokens1 of
+        Just (expr, CloseParenthesisToken : restTokens2) -> Just (ParenthesisedExpr expr, restTokens2)
+        _                                                -> Nothing
+parseLiteralOrVariable _ = Nothing
+
+parsePowerOrLiteralOrVariable :: [Token] -> Maybe (Expr, [Token])
+parsePowerOrLiteralOrVariable tokens = 
+    case parseLiteralOrVariable tokens of
+        Just (expr1, PowerToken : LiteralToken exp : restTokens1) -> Just (PowerExpr expr1 exp, restTokens1)
         result -> result
 
-parseSumOrProductOrLiteralOrVariableOrPower :: [Token] -> Maybe (Expr, [Token])
-parseSumOrProductOrLiteralOrVariableOrPower tokens =
-    case parseProductOrLiteralOrVariableOrPower tokens of
+parseProductOrPowerOrLiteralOrVariable :: [Token] -> Maybe (Expr, [Token])
+parseProductOrPowerOrLiteralOrVariable tokens =
+    case parsePowerOrLiteralOrVariable tokens of
+        Just (expr1, TimesToken : restTokens1) ->
+            case parseProductOrPowerOrLiteralOrVariable restTokens1 of
+                Just (expr2, restTokens2) -> Just (TimesExpr expr1 expr2, restTokens2)
+                _                         -> Nothing
+        result -> result
+
+parseSumOrProductOrPowerLiteralOrVariable :: [Token] -> Maybe (Expr, [Token])
+parseSumOrProductOrPowerLiteralOrVariable tokens =
+    case parseProductOrPowerOrLiteralOrVariable tokens of
         Just (expr1, PlusToken : restTokens1) ->
-            case parseSumOrProductOrLiteralOrVariableOrPower restTokens1 of
+            case parseSumOrProductOrPowerLiteralOrVariable restTokens1 of
                 Just (expr2, restTokens2) -> Just (PlusExpr expr1 expr2, restTokens2)
-                Nothing                   -> Nothing
+                _                         -> Nothing
+        Just (expr1, MinusToken : restTokens1) ->
+            case parseSumOrProductOrPowerLiteralOrVariable restTokens1 of
+                Just (PlusExpr expr2 expr3, restTokens2) -> Just (PlusExpr expr1 (PlusExpr (NegExpr expr2) expr3), restTokens2)
+                Just (expr2, restTokens2) -> Just (PlusExpr expr1 (NegExpr expr2), restTokens2)
+                _                                        -> Nothing
         result -> result
 
 parseTokens :: [Token] -> Expr
 parseTokens tokens =
-    case parseSumOrProductOrLiteralOrVariableOrPower tokens of
+    case parseSumOrProductOrPowerLiteralOrVariable tokens of
         Just (expr, []) -> expr
         _               -> error "could not parse input"
+    where hasTwoMinuses = any (\(t1, t2) -> t1 == MinusToken && t2 == MinusToken) (zip tokens (tail tokens))
+    

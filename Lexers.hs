@@ -14,7 +14,7 @@ data Token = PlusToken
     | CloseParenthesisToken
     | VariableToken Variable
     | LiteralToken Number
-    deriving (Show)
+    deriving (Show, Eq)
 
 lexer :: String -> [Token]
 lexer "" = []

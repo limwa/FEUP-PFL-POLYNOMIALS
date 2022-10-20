@@ -20,8 +20,9 @@ instance Show Power where
                          | otherwise = concat [[var], "^", show exp]
 
 instance Show Term where
-    show (Term powers coef) | coef == 1 = powersStr
-                            | otherwise =  show coef ++ (if null powersStr then "" else " * " ++ powersStr)
+    show (Term powers coef) | coef == 1  && null powersStr = show coef
+                            | coef == 1 = powersStr
+                            | otherwise = show coef ++ (if null powersStr then "" else " * " ++ powersStr)
         where powersStr = intercalate " * " (map show powers)
 
 instance Show Polynomial where
