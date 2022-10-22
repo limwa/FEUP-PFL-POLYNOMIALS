@@ -87,7 +87,7 @@ multiply (Polynomial [ Term [ Power 'z' 2 ] 9]) (Polynomial [ Term [ Power 'y' 5
 
  -- Tests step 3.
 multiply (Polynomial [ Term [ Power 'x' 2, Power 'y' 3, Power 'x' 10 ] 2, Term [ Power 'x' 2 ] 2 ]) (Polynomial [ Term [ Power 'x' 5, Power 'y' 8] (-7), Term [Power 'x' 2] 5, Term [ Power 'y' 3] 7])
--- Result: -14 * x^17 * y^11 + 10 * x^14 * y^3 + 14 * x^12 * y^6 + -14 * x^7 * y^8 + 10 * x^4 + 14 * x^2 * y^3
+-- Result: -14 * x^17 * y^11 + 10 * x^14 * y^3 + 14 * x^12 * y^6 - 14 * x^7 * y^8 + 10 * x^4 + 14 * x^2 * y^3
 ```
 
 ### Differentiation
@@ -106,7 +106,7 @@ derivativeOf 'x' (Polynomial [ Term [ Power 'y' 2 ] 3 ])
 -- Result: 0
 
 derivativeOf 'x' (Polynomial [ Term [ Power 'x' 2, Power 'y' 1 ] 2, Term [ Power 'x' 7, Power 'y' 0 ] (-14), Term [ Power 'x' 1, Power 'z' 2 ] 1 ])
--- Result: z^2 + -98 * x^6 + 4 * x * y
+-- Result: z^2 - 98 * x^6 + 4 * x * y
 ```
 
 ### Parsing
@@ -157,7 +157,7 @@ parse "(10^4 * 7 * x + 2 * 7 * a)^3 + b^4 - 7 * x^3"
 -- Result: 342999999999993 * x^3 + b^4 + 2744 * a^3 + 41160000 * a^2 * x + 205800000000 * a * x^2
 
 parse "(x^2 + 3)^6 * (x^7 - 10)"
--- Result: x^19 + 18 * x^17 + 135 * x^15 + 540 * x^13 + -10 * x^12 + 1215 * x^11 + -180 * x^10 + 1458 * x^9 + -1350 * x^8 + 729 * x^7 + -5400 * x^6 + -12150 * x^4 + -14580 * x^2 + -7290
+-- Result: x^19 + 18 * x^17 + 135 * x^15 + 540 * x^13 - 10 * x^12 + 1215 * x^11 - 180 * x^10 + 1458 * x^9 - 1350 * x^8 + 729 * x^7 - 5400 * x^6 - 12150 * x^4 - 14580 * x^2 - 7290
 ```
 
 ## Credits

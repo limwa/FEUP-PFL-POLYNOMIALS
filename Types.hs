@@ -20,11 +20,13 @@ instance Show Power where
                          | otherwise = concat [[var], "^", show exp]
 
 instance Show Term where
-    show (Term powers coef) | coef == 1  && null powersStr = show coef
-                            | coef == 1 = powersStr
-                            | otherwise = show coef ++ (if null powersStr then "" else " * " ++ powersStr)
+    show (Term powers coef) 
+        | null powersStr = show coef
+        | coef == 1 = powersStr
+        | coef == (-1) = '-' : powersStr
+        | otherwise = show coef ++ (if null powersStr then "" else " * " ++ powersStr)
         where powersStr = intercalate " * " (map show powers)
 
 instance Show Polynomial where
     show (Polynomial []) = "0" 
-    show (Polynomial terms) = intercalate " + " (map show terms)
+    show (Polynomial terms) = foldl1 (\acc v -> acc ++ (if head v /= '-' then " + " ++ v else " - " ++ tail v)) (map show terms)
