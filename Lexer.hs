@@ -1,4 +1,4 @@
-module Lexers (
+module Lexer (
     Token(..),
     lexer
 ) where

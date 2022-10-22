@@ -1,10 +1,13 @@
 module Parsers (
     Expr(..),
-    parseTokens
+    parse
 ) where
 
 import Types
-import Lexers
+import Lexer
+import Add
+import Multiply
+import Normalize (normalize)
 
 data Expr = PlusExpr Expr Expr
     | NegExpr Expr
@@ -18,9 +21,7 @@ data Expr = PlusExpr Expr Expr
 parseLiteralOrVariable :: [Token] -> Maybe (Expr, [Token])
 parseLiteralOrVariable (LiteralToken n : tks) = Just (LiteralExpr n, tks)
 parseLiteralOrVariable (VariableToken v : tks) = Just (VariableExpr v, tks)
-
 parseLiteralOrVariable (MinusToken : tks) = parseSumOrProductOrPowerLiteralOrVariable (LiteralToken 0 : MinusToken : tks)
-
 parseLiteralOrVariable (OpenParenthesisToken : restTokens1) =
     case parseSumOrProductOrPowerLiteralOrVariable restTokens1 of
         Just (expr, CloseParenthesisToken : restTokens2) -> Just (ParenthesisedExpr expr, restTokens2)
@@ -61,5 +62,20 @@ parseTokens tokens =
     case parseSumOrProductOrPowerLiteralOrVariable tokens of
         Just (expr, []) -> expr
         _               -> error "could not parse input"
-    where hasTwoMinuses = any (\(t1, t2) -> t1 == MinusToken && t2 == MinusToken) (zip tokens (tail tokens))
-    
+
+polynomialFromExpr :: Expr -> Polynomial
+polynomialFromExpr (PlusExpr expr expr') = add (polynomialFromExpr expr) (polynomialFromExpr expr')
+polynomialFromExpr (NegExpr expr) = Polynomial (mapTerms terms)
+    where 
+        (Polynomial terms) = polynomialFromExpr expr
+        mapTerms = map (\(Term powers coef) -> Term powers (-coef))
+
+polynomialFromExpr (TimesExpr expr expr') = multiply (polynomialFromExpr expr) (polynomialFromExpr expr')
+polynomialFromExpr (PowerExpr expr exp) = foldr multiply (Polynomial [ Term [] 1 ]) (replicate exp (polynomialFromExpr expr))
+polynomialFromExpr (VariableExpr var) = Polynomial [ Term [ Power var 1 ] 1 ]
+polynomialFromExpr (LiteralExpr num) = Polynomial [ Term [] num ]
+polynomialFromExpr (ParenthesisedExpr expr) = polynomialFromExpr expr
+
+parse :: String -> Polynomial
+parse input = normalize (polynomialFromExpr expr)
+    where expr = parseTokens (lexer input)

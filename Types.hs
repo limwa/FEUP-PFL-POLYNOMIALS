@@ -26,4 +26,5 @@ instance Show Term where
         where powersStr = intercalate " * " (map show powers)
 
 instance Show Polynomial where
+    show (Polynomial []) = "0" 
     show (Polynomial terms) = intercalate " + " (map show terms)
