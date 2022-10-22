@@ -1,7 +1,7 @@
 # Project 1 - Polynomial Manipulation in Haskell
 
 - André Lima ([up202008169](mailto:up202008169@edu.fe.up.pt))
-- Mariana de Matos Lorenço Lobão ([up202004260](mailto:up202004260@edu.fe.up.pt))
+- Mariana Lobão ([up202004260](mailto:up202004260@edu.fe.up.pt))
 
 ## Types and internal representation
 
