@@ -162,4 +162,8 @@ parse "(x^2 + 3)^6 * (x^7 - 10)"
 
 ## Credits
 
-- [http://learn.hfm.io/expressions.html](http://learn.hfm.io/expressions.html), for giving us some inspiration on how to write our parser
+### Parser
+
+Much of the inspiration for our parser came from the website linked below.
+
+- "Expression Trees". *Haskell For Mac*. Accessed October 19, 2022. [http://learn.hfm.io/expressions.html](http://learn.hfm.io/expressions.html).
